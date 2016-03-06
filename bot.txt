@@ -1,0 +1,3 @@
+bot:
+login: botjeepee@gmail.com
+ww: ditisgeheim
