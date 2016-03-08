@@ -1,9 +1,5 @@
-﻿namespace PeeSharpDiscordBot
+﻿namespace PeeSharpDiscordBot.Models
 {
-	using System.Linq;
-
-	using Newtonsoft.Json.Linq;
-
 	public class Joke
 	{
 		public string type { get; set; }

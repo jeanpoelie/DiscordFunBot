@@ -71,8 +71,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscordCommunityBot.cs" />
     <Compile Include="DiscordBotFun.cs" />
-    <Compile Include="Joke.cs" />
+    <Compile Include="Models\Joke.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Value.cs" />

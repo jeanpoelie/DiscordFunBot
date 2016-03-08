@@ -9,15 +9,24 @@ namespace PeeSharpDiscordBot
 {
 	using System.Net.Http;
 	using System.Net.Http.Headers;
+	using System.Threading;
 
 	using Newtonsoft.Json;
 
-	class Program
+	public class Program
 	{
 		static void Main(string[] args)
 		{
 			Console.WriteLine("Started program.");
-			DiscordBotFun bot = new DiscordBotFun();
+
+			var communityBot = new DiscordCommunityBot();
+
+			var funBot = new DiscordBotFun();
+
+			while (true)
+			{
+				Thread.Sleep(1);
+			}
 		}
 
 		public async Task<string> GetJSONDataViaAJAX(string url, string navigation)

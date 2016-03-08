@@ -16,19 +16,21 @@ namespace PeeSharpDiscordBot
 		- React with songs thru voice when someone says a certain phrase.
 		- 
 	*/
+
 	/// <summary>
 	/// My first bot just for shits and giggles.
 	/// </summary>
-	class DiscordBotFun : Program
+	public class DiscordBotFun : Program
 	{
 
 		/// <summary>
 		/// The bot itself
 		/// </summary>
-		private DiscordClient bot;
+		private readonly DiscordClient bot;
 
 		/// <summary>
-		/// The contructor
+		/// Initializes a new instance of the <see cref="DiscordBotFun"/> class. 
+		/// The constructor
 		/// </summary>
 		public DiscordBotFun()
 		{
@@ -40,7 +42,7 @@ namespace PeeSharpDiscordBot
 
 			bot.Connect("botjeepee@gmail.com", "ditisgeheim");
 
-			bot.Wait();
+			//bot.Wait();
 		}
 
 		/// <summary>
@@ -59,7 +61,7 @@ namespace PeeSharpDiscordBot
 			message = message.Replace(this.bot.CurrentUser.Name.ToLower() + " ", "");
 			Console.WriteLine(e.User.Name + " said: " + message);
 
-			if (message.Contains("hi!") || message == "hi" || message == "hello" || message == "bonjour")
+			if (message.Contains("hi!") || message.Contains("hi") || message.Contains("hello") || message.Contains("bonjour"))
 			{
 				e.Channel.SendMessage(e.User.Mention + " Greetings!");
 			}
@@ -70,23 +72,23 @@ namespace PeeSharpDiscordBot
 					e.User.Mention+ @" I am great, thank you, how are you?");
 			}
 
-			if (message == "!help")
+			if (message.Contains("!help"))
 			{
 				e.Channel.SendMessage(
 					e.User.Mention
 					+ @" **!commands** *For all the commands*");
 			}
 
-			if (message == "!commands")
+			if (message.Contains("!commands"))
 			{
 				e.Channel.SendMessage(
 					e.User.Mention
 					+ @" 
-					- **command:** *!joke* **Answer: ** *A funny joke* __***Will be adding options for subjects later***___
+					- **command:** *!joke* **Answer:** *A funny joke* __***Will be adding options for subjects later***___
 					");
 			}
 
-			if (message.Contains("tell me a joke") || message == "random joke" || message.Contains("!joke"))
+			if (message.Contains("tell me a joke") || message.Contains("random joke") || message.Contains("!joke"))
 			{
 				var json = await this.GetJSONDataViaAJAX("http://api.icndb.com", "jokes/random");
 				dynamic data = JObject.Parse(json);
