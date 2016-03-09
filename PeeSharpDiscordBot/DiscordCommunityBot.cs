@@ -57,6 +57,9 @@ namespace PeeSharpDiscordBot
 			message = message.Replace(this.bot.CurrentUser.Name.ToLower() + " ", "");
 			Console.WriteLine(e.User.Name + " said: " + message);
 
+			//var dt = DatabaseCommunication.GetAllUsers();
+
+
 			#region [Everyone]
 			if (message.Contains("hi!") || message.Contains("hi") || message.Contains("hello") || message.Contains("bonjour"))
 			{

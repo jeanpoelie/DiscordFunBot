@@ -54,9 +54,15 @@ namespace PeeSharpDiscordBot
 		{
 			if (e.Message.IsAuthor) return;
 
+			if (e.Message.Text.ToLower().Contains("@retard"))
+			{
+				e.Channel.SendMessage(e.User.Mention + " Greetings!");
+			}
+
+			// Check if the bot is mentioned.
 			if (!e.Message.Text.Contains(this.bot.CurrentUser.Name) || !e.Message.Text.Contains("@" + this.bot.CurrentUser.Name)) return;
 
-			var message = e.Message.Text.ToLower();
+				var message = e.Message.Text.ToLower();
 			message = message.Replace("@" + this.bot.CurrentUser.Name.ToLower() + " ", "");
 			message = message.Replace(this.bot.CurrentUser.Name.ToLower() + " ", "");
 			Console.WriteLine(e.User.Name + " said: " + message);
