@@ -7,11 +7,15 @@ namespace PeeSharpDiscordBot
 	using System.Net.Http.Headers;
 	using System.Threading;
 
+	using Extensions;
+
 	public class BotBase
 	{
 		private static void Main(string[] args)
 		{
 			Console.WriteLine("Started program.");
+
+			AutoMappings.RegisterMappings();
 
 			var communityBot = new DiscordCommunityBot();
 
