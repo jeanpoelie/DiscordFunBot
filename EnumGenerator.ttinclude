@@ -1,0 +1,61 @@
+﻿<#@ template debug="true" hostSpecific="true" #>
+<#@ output extension=".generated.cs" #>
+<#@ include file="ConfigurationAccessor.ttinclude" #>
+<#@ Assembly Name="EnvDTE" #>
+<#@ Assembly Name="System.Configuration" #>
+<#@ Assembly Name="System.Data" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#
+    string tableName = Path.GetFileNameWithoutExtension(Host.TemplateFile);
+    string path = Path.GetDirectoryName(Host.TemplateFile);
+
+﻿    // Get containing project
+﻿    IServiceProvider serviceProvider = (IServiceProvider)Host;
+﻿    DTE dte = (DTE)serviceProvider.GetService(typeof(DTE));
+﻿    Project project = dte.Solution.FindProjectItem(Host.TemplateFile).ContainingProject;
+
+    var config = new ConfigurationAccessor((IServiceProvider)this.Host, Path.GetDirectoryName(project.FileName));
+    string connectionString = config.ConnectionStrings["Database"].ConnectionString;
+#>
+using System;
+using System.CodeDom.Compiler;
+
+namespace <#= project.Properties.Item("DefaultNamespace").Value #><#= Path.GetDirectoryName(Host.TemplateFile).Remove(0, Path.GetDirectoryName(project.FileName).Length).Replace("\", ".") #>
+{
+    /// <summary>
+    /// <#= tableName #> auto generated enumeration
+    /// </summary>
+    [GeneratedCode("TextTemplatingFileGenerator", "10")]
+    public enum <#= tableName #>
+    {
+<#
+    SqlConnection conn = new SqlConnection(connectionString);
+    string command = String.Format("SELECT [{0}], [{1}] FROM [{2}] ORDER BY [{0}]", columnId, columnName, tableName);
+    SqlCommand comm = new SqlCommand(command, conn);
+
+    conn.Open();
+
+    SqlDataReader reader = comm.ExecuteReader();
+    bool loop = reader.Read();
+while(loop)
+    {
+#>        /// <summary>
+        /// <#= reader[columnName] #> configuration setting.
+        /// </summary>
+        <#= Pascalize(reader[columnName]) #> = <#= reader[columnId] #><# loop = reader.Read(); #><#= loop ? ",\r\n" : string.Empty #>
+<#
+    }
+#>    }
+}
+<#+
+    private string Pascalize(object value)
+    {
+﻿  ﻿      Regex rx = new Regex(@"(?:[^a-zA-Z0-9]*)(?<first>[a-zA-Z0-9])(?<reminder>[a-zA-Z0-9]*)(?:[^a-zA-Z0-9]*)");
+        return rx.Replace(value.ToString(), m => m.Groups["first"].ToString().ToUpper() + m.Groups["reminder"].ToString().ToLower());
+    }
+#>

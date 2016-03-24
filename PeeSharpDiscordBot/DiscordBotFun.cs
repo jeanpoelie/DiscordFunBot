@@ -1,14 +1,10 @@
-﻿using Discord;
-
-namespace PeeSharpDiscordBot
+﻿namespace PeeSharpDiscordBot
 {
 	using System;
-	using System.ComponentModel;
-	using System.Globalization;
+
+	using Discord;
 
 	using Newtonsoft.Json.Linq;
-
-	using RestSharp.Extensions;
 
 	/*
 		TODO: 
@@ -20,7 +16,7 @@ namespace PeeSharpDiscordBot
 	/// <summary>
 	/// My first bot just for shits and giggles.
 	/// </summary>
-	public class DiscordBotFun : Program
+	public class DiscordBotFun : BotBase
 	{
 
 		/// <summary>

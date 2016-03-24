@@ -1,0 +1,43 @@
+﻿@using WebApp.Models
+@model DiscordUserModel
+@{
+    ViewBag.Title = "Users Home";
+	var users = ViewBag.Users as List<DiscordUserModel>;
+}
+
+<div class="row">
+	<div class="table-responsive">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Birthdate</th>
+					<th>Role</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			@if (users.Any())
+			{
+				foreach (var user in users)
+				{
+					<tr>
+						<td>@user.Id</td>
+						<td>@user.Name</td>
+						<td>@user.Birthdate</td>
+						<td>@user.RoleDescription</td>
+						<td><a href="@Url.Action("Edit", "Users")/@user.Id"><span class="glyphicon glyphicon-pencil"></span></a></td>
+					</tr>
+				}
+			}
+			else
+			{
+				<tr>
+					<td>There are no users.</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+</div>

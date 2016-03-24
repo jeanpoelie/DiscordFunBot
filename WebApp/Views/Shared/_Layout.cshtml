@@ -1,0 +1,115 @@
+﻿@using WebApp.Models
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Bot Brain</title>
+    @Styles.Render("~/Content/css")
+	@Scripts.Render("~/bundles/modernizr")
+
+	@{
+		var roleId = int.Parse(ViewBag.RoleId.ToString());
+	}
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Bot Brain User Interface", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+	                <li>@Html.ActionLink("Home", "Index", "Home")</li>
+	                <li>@Html.ActionLink("Account", "Index", "Account")</li>
+					
+	            </ul>
+
+	            <ul class="nav navbar-nav pull-right">
+		            @if (roleId <= (int)Role.Admin)
+					{
+					<li>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"> Admin <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>@Html.ActionLink("Users", "Index", "Users")</li>
+						</ul>
+					</li>
+					}
+					<li>
+						<button type="button" style="margin-top: 10px;" class="btn btn-warning" data-toggle="modal" data-target="#suggestionsModal">
+							Suggestions?
+						</button>
+					</li>
+				</ul>
+			</div>
+        </div>
+    </div>
+<div class="container body-content">
+	<div class="messages">
+		@if (ViewBag.ErrorMessage != null && !string.IsNullOrEmpty(ViewBag.ErrorMessage.ToString()))
+		{
+			<div class="alert alert-danger">@ViewBag.ErrorMessage.ToString()</div>
+		}
+
+		@if (ViewBag.SuccessMessage != null && !string.IsNullOrEmpty(ViewBag.SuccessMessage.ToString()))
+		{
+			<div class="alert alert-success">@ViewBag.SuccessMessage.ToString()</div>
+		}
+	</div>
+
+	@RenderBody()
+
+	@Html.Partial("_SuggestionsModal")
+	<hr/>
+	<footer>
+		<p>&copy; @DateTime.Now.Year - Bot Brains User Interface</p>
+	</footer>
+</div>
+
+	
+    @Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	@Scripts.Render("~/bundles/custom")
+	@RenderSection("scripts", required: false)
+
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var text_max = 300;
+			$('#textarea_feedback').html(text_max + ' characters remaining');
+
+			$('#suggestion_textarea').keyup(function () {
+				var text_length = $('#suggestion_textarea').val().length;
+				var text_remaining = text_max - text_length;
+
+				$('#textarea_feedback').html(text_remaining + ' characters remaining');
+			});
+
+			$('#submitSuggestion').click(function () {
+				$('#suggestionsModal').modal('hide');
+
+				var suggestion = $('#suggestion_textarea').val();
+				$('#suggestion_textarea').empty();
+				$.ajax({
+					type: "POST",
+					url: '/Home/AddSuggestion/',
+					dataType: "html",
+					data: { 'suggestion': suggestion },
+					success: function (result) {
+						$('.messages').append("<div class=\"alert alert-success\">Your suggestion has been added, thanks for your input!</div>");
+					},
+					error: function (request, status, error) {
+						$('.messages').append("<div class=\"alert alert-danger\">Something went terrible wrong, please tell the developers!</div>");
+					}
+				});
+			});
+		});
+	</script>
+</body>
+</html>

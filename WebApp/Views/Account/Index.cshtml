@@ -1,0 +1,70 @@
+﻿@model WebApp.Models.DiscordUserModel
+@{
+    ViewBag.Title = "Account Home";
+}
+
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">User Details</h3>
+			</div>
+			<div class="panel-body">
+				<div class="col-md-6">
+					User Unique Identity:
+				</div>
+				<div class="col-md-6">
+					@Model.Id
+				</div>
+
+				<div class="col-md-6">
+					Name:
+				</div>
+				<div class="col-md-6">
+					@Model.Name
+				</div>
+
+				<div class="col-md-6">
+					Birthdate:
+				</div>
+				<div class="col-md-6">
+					@Model.Birthdate
+				</div>
+
+				<div class="col-md-6">
+					Role:
+				</div>
+				<div class="col-md-6">
+					@Model.RoleDescription
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">User Information</h3>
+			</div>
+			<div class="panel-body">
+				<div class="col-md-6">
+					Add Date:
+				</div>
+				<div class="col-md-6">
+					@Model.AddDate
+				</div>
+
+				<div class="col-md-6">
+					Last Updated:
+				</div>
+				<div class="col-md-6">
+					@Model.UpdateDate
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-12">
+		<a href="@Url.Action("Edit")" type="button" class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> Edit</a><br />
+	</div>
+</div>

@@ -1,0 +1,81 @@
+﻿@using WebApp.Extensions
+@using WebApp.Models
+@using SelectListItem = System.Web.WebPages.Html.SelectListItem
+@model WebApp.Models.DiscordUserModel
+@{
+	ViewBag.Title = "User Edit";
+	var roles = ViewBag.Roles as IList<RoleModel>;
+}
+
+@using (Html.BeginForm("Edit", "Users", FormMethod.Post))
+{
+	@Html.HiddenForSkipModelState(m => m.RoleId)
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">User Details</h3>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						@Html.LabelFor(m => m.Id, new { @class = "col-md-4" })
+						@Html.TextBoxFor(m => m.Id, new { @readonly = "readonly", @class = "form-control col-md-8" })
+					</div>
+
+					<div class="form-group">
+						@Html.LabelFor(m => m.Name, new { @class = "col-md-4" })
+						@Html.TextBoxFor(m => m.Name, new { @readonly = "readonly", @class = "form-control col-md-8" })
+					</div>
+
+					<div class="form-group">
+						@Html.LabelFor(m => m.Birthdate, new { @class = "col-md-4" })
+						<div class="input-group date col-md-8" id="@Html.IdFor(m => m.Birthdate)">
+							<input type="text" class="form-control" name="Birthdate" id="Birthdate"/>
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-calendar"></span>
+							</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						@Html.LabelFor(m => m.RoleDescription, new { @class = "col-md-4" })
+						@Html.DropDownListFor(n => n.RoleId, new SelectList(roles, "Id", "Description"), new {@class="form-control col-md-8"})
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">User Information</h3>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						@Html.LabelFor(m => m.AddDate, new { @class = "col-md-4" })
+						@Html.TextBoxFor(m => m.AddDate, new { @readonly = "readonly", @class = "form-control col-md-8" })
+					</div>
+					<div class="form-group">
+						@Html.LabelFor(m => m.UpdateDate, new { @class = "col-md-4" })
+						@Html.TextBoxFor(m => m.UpdateDate, new { @readonly = "readonly", @class = "form-control col-md-8" })
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Save</button>
+		</div>
+	</div>
+}
+
+@section scripts {
+	<script type="text/javascript">
+            $(function () {
+            	$('#@Html.IdFor(m => m.Birthdate)').datetimepicker({
+            		format: 'DD-MM-YYYY'
+	            });
+            });
+	</script>
+}
