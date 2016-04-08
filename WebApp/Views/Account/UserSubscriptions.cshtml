@@ -7,11 +7,14 @@
 @if (Model.ForceAllBirthdayNotifications)
 {
 	<text>
-		<p>You have checked "Force All Birthday Notifications", because of this you will get notified when its someones birthday.</p></text>
+		<p>You have checked "Force All Birthday Notifications", because of this you will get notified when its someones birthday.</p>
+		<p>To edit this, go to Account > Edit, or @Html.ActionLink("Click Here", "Edit", "Account").</p>
+	</text>
 }
 else
 {
 	<p>You will only get notified when someone in you are "subscribed" to someone's birthday.</p>
+	<p>If you want to be notified no matter who's birthday it is, go to Account > Edit or @Html.ActionLink("Click Here", "Edit", "Account") and check the "Force All Birthday Notifications" box.</p>
 
 	using (Html.BeginForm("UserSubscriptions", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
 	{
