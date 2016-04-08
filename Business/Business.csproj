@@ -48,7 +48,9 @@
     <Compile Include="Database.cs" />
     <Compile Include="Extensions\DataRowExtensionMethods.cs" />
     <Compile Include="Extensions\DataTableExtension.cs" />
+    <Compile Include="Models\BusinessUserSubscriptionModel.cs" />
     <Compile Include="Models\BusinessRoleModel.cs" />
+    <Compile Include="UserSubscription.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="User.cs" />
     <Compile Include="DatabaseCommunication.cs" />
@@ -60,6 +62,12 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Settings.StyleCop" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\moment-with-locales.js" />
+    <Content Include="Scripts\moment-with-locales.min.js" />
+    <Content Include="Scripts\moment.js" />
+    <Content Include="Scripts\moment.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

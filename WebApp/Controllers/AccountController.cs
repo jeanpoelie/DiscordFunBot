@@ -3,6 +3,7 @@
 namespace WebApp.Controllers
 {
 	using System;
+	using System.Collections.Generic;
 
 	using AutoMapper;
 
@@ -42,6 +43,29 @@ namespace WebApp.Controllers
 			}
 			
 			return this.View(user);
+		}
+
+		public ActionResult UserSubscriptions()
+		{
+			var subscribedUsers = Business.UserSubscription.GetAll(DiscordUser.Id, DiscordUser.Name);
+			return this.View(Mapper.Map<List<UserSubscriptionModel>>(subscribedUsers));
+		}
+
+		[HttpPost]
+		public ActionResult UserSubscriptions(List<UserSubscriptionModel> userSubscriptionModels)
+		{
+			var businessUserSubscriptionModels = Mapper.Map<List<BusinessUserSubscriptionModel>>(userSubscriptionModels);
+			businessUserSubscriptionModels.ForEach(busm => busm.UserId = DiscordUser.Id);
+			Business.UserSubscription.Add(businessUserSubscriptionModels);
+			return this.View(userSubscriptionModels);
+		}
+
+		public ActionResult AddUserSubscriptions()
+		{
+			var model = new UserSubscriptionModel();
+			ViewBag.Users = Mapper.Map<IList<DiscordUserModel>>(Business.User.GetAll());
+
+			return PartialView("~/Views/Account/_UserSubscription.cshtml", model);
 		}
 	}
 }

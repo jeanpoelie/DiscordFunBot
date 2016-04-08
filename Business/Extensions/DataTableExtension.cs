@@ -22,6 +22,8 @@ namespace Business.Extensions
 		public static IList<T> ToList<T>(this DataTable table, string include = "", string exclude = "") where T : new()
 		{
 			var properties = DataRowExtensionMethods.GetSelectedProperties<T>(include, exclude);
+			
+			
 
 			return table.AsEnumerable().Select(row => DataRowExtensionMethods.CreateItemFromRow<T>(row, properties)).ToList();
 		}

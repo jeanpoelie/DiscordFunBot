@@ -45,13 +45,23 @@
 			{
 				throw new NullReferenceException("This user does not exist.");
 			}
-
+			
 			return DatabaseCommunication.GetUser(id).ToList<BusinessDiscordUserModel>().FirstOrDefault();
 		}
 
 		public static IList<BusinessDiscordUserModel> GetAll()
 		{
 			return DatabaseCommunication.GetAllUsers().ToList<BusinessDiscordUserModel>();
+		}
+
+		public static IList<BusinessDiscordUserModel> GetSubscribedUsers(BusinessDiscordUserModel user)
+		{
+			return DatabaseCommunication.GetSubscribedUsers(user.Id).ToList<BusinessDiscordUserModel>();
+		}
+
+		public static IList<BusinessDiscordUserModel> GetUsersWithBirthdate(DateTime birthDate)
+		{
+			return DatabaseCommunication.GetUsersWithBirthdate(birthDate).ToList<BusinessDiscordUserModel>();
 		}
 
 		public static void Update(BusinessDiscordUserModel user)
@@ -62,6 +72,21 @@
 			}
 
 			DatabaseCommunication.UpdateUser(user);
+		}
+
+		public static void UpdateOrInsert(BusinessDiscordUserModel user)
+		{
+			var discordUser = Get(user.Id);
+
+			if (discordUser == null)
+			{
+				Console.WriteLine("Added a new user: " + user.Name);
+				Add(user);
+				return;
+			}
+
+			Console.WriteLine("Updated a user: " + user.Name);
+			Update(discordUser);
 		}
 
 		public static void UpdateRole(BusinessDiscordUserModel user, int role)

@@ -216,6 +216,9 @@
 				throw new ArgumentNullException("query");
 			}
 
+//Console.WriteLine(@"Query: 
+//" + query);
+
 			Contract.EndContractBlock();
 
 			using (var connection = new MySqlConnection(this.connectionString.ConnectionString))

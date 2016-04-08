@@ -59,5 +59,16 @@ namespace PeeSharpDiscordBot
 
 			return (startDate - endDate).Days;
 		}
+
+		public async void ScheduleAction(Action action, DateTime ExecutionTime)
+		{
+			if (DateTime.Now > ExecutionTime)
+			{
+				ExecutionTime = ExecutionTime.AddDays(1);
+			}
+
+			await Task.Delay((int)Math.Abs(ExecutionTime.Subtract(DateTime.Now).TotalMilliseconds));
+			action();
+		}
 	}
 }

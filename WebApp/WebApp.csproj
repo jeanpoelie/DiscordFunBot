@@ -151,6 +151,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Extensions\HiddenForExtensions.cs" />
+    <Compile Include="Models\UserSubscriptionModel.cs" />
     <Compile Include="Models\DiscordUserModel.cs" />
     <Compile Include="Models\RoleModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -513,6 +514,8 @@
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
     <Content Include="Views\Shared\_SuggestionsModal.cshtml" />
+    <Content Include="Views\Account\UserSubscriptions.cshtml" />
+    <Content Include="Views\Account\_UserSubscription.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -32,13 +32,13 @@ namespace WebApp.Controllers
 				  throw new HttpException(403, "You are not allowed.");
 			}
 
-			long? id = RouteData.Values["id"] != null ? long.Parse(RouteData.Values["id"].ToString()) : -1;
-            if (id < 0)
+			long id = RouteData.Values["id"] != null ? long.Parse(RouteData.Values["id"].ToString()) : 0;
+            if (id <= 0)
 			{
 				throw new NullReferenceException("This user does not exist.");
 			}
 
-			var user = Mapper.Map<DiscordUserModel>(Business.User.Get((long)id));
+			var user = Mapper.Map<DiscordUserModel>(Business.User.Get(id));
 
 			ViewBag.Roles = Mapper.Map<List<RoleModel>>(Business.Role.GetAll());
 			return this.View(user);

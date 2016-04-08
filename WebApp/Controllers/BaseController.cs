@@ -62,7 +62,7 @@ namespace WebApp.Controllers
 
 		public static bool UserIsInRole(Role role)
 		{
-			return DiscordUser.Id == (int)role;
+			return DiscordUser.RoleId == (int)role;
 		}
 	}
 }

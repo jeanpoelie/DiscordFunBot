@@ -1,0 +1,9 @@
+﻿@using WebApp.Models
+@model WebApp.Models.UserSubscriptionModel 
+@{
+	var users = ViewBag.Users as List<DiscordUserModel>;
+}
+<tr>
+	<td>@Html.DropDownListFor(n => n.SubscriptionUserId, new SelectList(users, "Id", "Name"), new { @class = "form-control col-md-8" })</td>
+	@*<td><a href="@Url.Action("Remove", "Users")/@user.Id"><span class="glyphicon glyphicon-pencil"></span></a></td>*@
+</tr>

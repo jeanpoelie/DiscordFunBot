@@ -13,11 +13,16 @@
 	{
 		public static void RegisterMappings()
 		{
-			Mapper.CreateMap<DiscordUserModel, BusinessDiscordUserModel>();
-			Mapper.CreateMap<BusinessDiscordUserModel, DiscordUserModel>();
-
-			Mapper.CreateMap<RoleModel, BusinessRoleModel>();
-			Mapper.CreateMap<BusinessRoleModel, RoleModel>();
+			Mapper.Initialize(
+				cfg =>
+					{
+						cfg.CreateMap<BusinessRoleModel, RoleModel>();
+						cfg.CreateMap<RoleModel, BusinessRoleModel>();
+						cfg.CreateMap<DiscordUserModel, BusinessDiscordUserModel>();
+						cfg.CreateMap<BusinessDiscordUserModel, DiscordUserModel>();
+						cfg.CreateMap<UserSubscriptionModel, BusinessUserSubscriptionModel>();
+						cfg.CreateMap<BusinessUserSubscriptionModel, UserSubscriptionModel>();
+					});
 		}
 	}
 }

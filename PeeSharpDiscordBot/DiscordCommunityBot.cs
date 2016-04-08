@@ -3,16 +3,16 @@
 	using Discord;
 
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
+	using System.IO.Pipes;
 	using System.Linq;
-	using System.Text.RegularExpressions;
+	using System.Threading;
+	using System.Threading.Tasks;
 
 	using AutoMapper;
 
 	using Business.Models;
 
-	using Extensions;
 	using Models;
 
 	/*
@@ -42,12 +42,23 @@
 		{
 			Console.WriteLine("Started community bot.");
 
-			bot = new DiscordClient();
+			bot = new DiscordClient(); 
 
+			// Bot events
 			bot.MessageReceived += Bot_MessageReceived;
+			bot.MessageSent += Bot_MessageSent;
 
+			// Connect the bot
 			bot.Connect("discordcommunityrobot@gmail.com", "ditisgeheim");
 
+			// Testing functions
+			GlobalBirthdayNotification();
+
+			// Scheduled Actions 
+			ScheduleAction(new Action(SynchronizeUsers), new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0));
+			ScheduleAction(new Action(GlobalBirthdayNotification), new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 11, 0, 0));
+			ScheduleAction(new Action(BirthdayNotification), new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 9, 0, 0));
+			
 			//bot.Wait();
 		}
 
@@ -69,6 +80,7 @@
 			{
 				var user = new DiscordUserModel();
 				var users = Mapper.Map<List<DiscordUserModel>>(Business.User.GetAll());
+				var message = e.Message.Text.ToLower();
 
 				foreach (var _user in users.Where(_user => _user.Id == (long)e.User.Id))
 				{
@@ -95,26 +107,84 @@
 					Business.User.Add(businessUser);
 				}
 
+#region [Everyone]
 				if (e.Message.Text.Contains("!webapp") || e.Message.Text.Contains("webapp"))
 				{
-					await e.Channel.SendMessage(@"Please go to " + baseUrl + "?uid=" + user.Id + "&token=" + user.Token +
-"*Share this url on your own risk!*");
+					await e.User.SendMessage(@"Please go to " + baseUrl + "?uid=" + user.Id + "&token=" + user.Token +
+" *Share this url on your own risk!*");
 				}
 
-				if (e.Message.Text.Contains("!commands"))
+				if (e.Message.Text.Contains("!commands") || e.Message.Text.Contains("!help"))
 				{
-					await e.Channel.SendMessage(
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-					e.User.Mention
-						+ @" 
-  **Community Commands**
-- *!webapp* **Answer:** *To edit your account*");
+					await e.User.SendMessage(@"  
+  **Private Commands**
+- *!birthdaylist* **Answer:** *Get a list of all known birthdays*	 
+- *!ignorelist* **Answer:** *Get a list of all the people that I ignore*
+- *!webapp* **Answer:** *To edit your account, add your birthday etc.*
+
+  **Admin Commands**
+- *All admin commands are moved to the webapp*");
 					return;
 				}
+
+				if (message.Contains("!ignorelist"))
+				{
+					if (user.Ignored)
+					{
+						return;
+					}
+
+					var ignoreList = users.Where(_user => _user.Ignored)
+										.Aggregate(string.Empty, (current, _user) => current + ("- " + _user.Name + @"
+"));
+
+					await e.Channel.SendMessage($"{e.User.Mention} \r\n**Ignored people: **\r\n{(string.IsNullOrEmpty(ignoreList) ? "I like talking to everyone" : ignoreList)}");
+					return;
+				}
+
+				if (message.Contains("!birthdaylist"))
+				{
+					if (user.Ignored)
+					{
+						return;
+					}
+
+					var birthdayList = users.Where(_user => _user.Birthdate != null)
+						.Aggregate(string.Empty, (current, _user) => current + ("- " + _user.Name + ": " + _user.Birthdate.Value.ToShortDateString() + " *Days Left: " + DaysUntillDate(_user.Birthdate.Value.AddYears(DateTime.Today.Year - _user.Birthdate.Value.Year), DateTime.Today) + @"*
+"));
+					Console.Write(birthdayList.Count());
+					await e.Channel.SendMessage($"{e.User.Mention} \r\n**Birthdays: **\r\n{(string.IsNullOrEmpty(birthdayList) ? "There are no known birthdays." : birthdayList)}");
+					return;
+				}
+				#endregion
+
+				#region [User]
+
+				if (user.RoleId <= 3)
+				{
+					
+				}
+				#endregion
+
+				#region [Organizer]
+				// TODO:  IMPELEMENT
+				if (user.RoleId <= 2)
+				{
+
+				}
+				#endregion
+
+				#region [Admins]
+				if (user.RoleId <= 1)
+				{
+					
+				}
+				#endregion
 			}
 			else
 			{
-				if (!e.Message.Text.Contains(this.bot.CurrentUser.Name) || !e.Message.Text.Contains("@" + this.bot.CurrentUser.Name))
+				// If we do not get mentioned, do not react.
+				if (!e.Message.IsMentioningMe())
 				{
 					return;
 				}
@@ -152,236 +222,115 @@
 				}
 
 
-				#region [Everyone] 
+				#region [Everyone]
+				if (message.Contains("!commands") || message.Contains("!help"))
+				{
+					await e.User.SendMessage(@" 
+  **Private Commands**
+- *!birthdaylist* **Answer:** *Get a list of all known birthdays*	 
+- *!ignorelist* **Answer:** *Get a list of all the people that I ignore*
+- *!webapp* **Answer:** *To edit your account, add your birthday etc.*
+
+  **Admin Commands**
+- *All admin commands are moved to the webapp*");
+
+					await e.Channel.SendMessage(e.User.Mention + " I have send you a private message!");
+                    return;
+				}
+
+				// Connect to talking API
 				if (message.Contains("hi!") || message.Contains("hi") || message.Contains("hello") || message.Contains("bonjour"))
 				{
 					await e.Channel.SendMessage(e.User.Mention + " Greetings!");
 					return;
 				}
-
-				if (message.Contains("!commands"))
-				{
-					await e.Channel.SendMessage(
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-					e.User.Mention
-						+ @" 
-  **Community Commands**
-- *!birthdaylist* **Answer:** *Get a list of all known birthdays*	 
-- *!ignorelist* **Answer:** *Get a list of all the people that I ignore*
-- *!birthday* **Answer:** *Use Add/Remove to add or remove a birthday* **(Example: !birthday add @user dd/mm/yyy)** ***__Moved to Webapp__***
-- *!commandwish* **Answer:** *Add a wish for commands* **(Example: !commandwish random quiz question)** ***__Moved to Webapp__***
-
-  **Admin Commands**
-- *!ignore* **Answer:** *Add/Remove people from the ignore list* **(Example: !ignore add @user)**
-- *!role* **Answer:** *Change someones role* **(Example: !role @{user} #{role})** ***__Moved to Webapp__***
-
-*Private message me and ask for your own webapp unique url.*");
-					return;
-				}
-
-				if (message.Contains("!ignorelist"))
-				{
-					if (user.Ignored)
-					{
-						return;
-					}
-
-					var ignoreList = users.Where(_user => _user.Ignored)
-										.Aggregate(string.Empty, (current, _user) => current + ("- " + _user.Name + @"
-"));
-
-					await e.Channel.SendMessage($"{e.User.Mention} \r\n**Ignored people: **\r\n{(string.IsNullOrEmpty(ignoreList) ? "I like talking to everyone" : ignoreList)}");
-					return;
-				}
-
-				if (message.Contains("!birthdaylist"))
-				{
-					if (user.Ignored)
-					{
-						return;
-					}
-
-					var birthdayList = users.Where(_user => _user.Birthdate != null)
-						.Aggregate(string.Empty, (current, _user) => current + ("- " + _user.Name + ": " + _user.Birthdate.Value.ToShortDateString() + " *Days Left: " + DaysUntillDate(_user.Birthdate.Value.AddYears(DateTime.Today.Year - _user.Birthdate.Value.Year), DateTime.Today) + @"*
-"));
-
-					await e.Channel.SendMessage($"{e.User.Mention} \r\n**Birthdays: **\r\n{(string.IsNullOrEmpty(birthdayList) ? "There don't know anyone who has a birthday" : birthdayList)}");
-					return;
-				}
-				#endregion
-
-				#region [User]
-
-				if (user.RoleId <= 3)
-				{
-					//if (message.Contains("!birthday"))
-					//{
-					//	if (user.Ignored)
-					//	{
-					//		return;
-					//	}
-
-					//	if (message.Contains("add"))
-					//	{
-					//		var regex = new Regex(@"\b\d{2}-\d{2}-\d{4}\b");
-					//		var result = regex.Match(message);
-					//		if (result.Success)
-					//		{
-					//			DateTime date;
-					//			if (DateTime.TryParse(result.Value, out date))
-					//			{
-					//				date = DateTime.Parse(result.Value);
-					//				user.Birthdate = date;
-					//				var businessUser = Mapper.Map<BusinessDiscordUserModel>(user);
-					//				Business.User.Update(businessUser);
-
-					//				await e.Channel.SendMessage(e.User.Mention + @" I have successfully uploaded your birthday into my memory.");
-					//				return;
-					//			}
-
-					//			await
-					//				e.Channel.SendMessage(
-					//					e.User.Mention
-					//					+ @" Please try again, this is not a valid date, the format should be DD-MM-YYYY *Example: 01-01-1970*");
-					//			return;
-					//		}
-					//		return;
-					//	}
-
-					//	if (message.Contains("remove") || message.Contains("remove"))
-					//	{
-					//		user.Birthdate = null;
-					//		var businessUser = Mapper.Map<BusinessDiscordUserModel>(user);
-					//		Business.User.Update(businessUser);
-					//		await e.Channel.SendMessage(e.User.Mention + @" I have successfully erased your birthday from my memory.");
-
-					//		return;
-					//	}
-
-					//	return;
-					//}
-
-					//if (message.Contains("!commandwish"))
-					//{
-					//	// TODO : Get the list of ignored peoples.
-					//	await e.Channel.SendMessage(e.User.Mention + " Not implemented yet!");
-					//	return;
-					//}
-				}
-				#endregion
-
-				#region [Organizer]
-				// TODO:  IMPELEMENT
-				if (user.RoleId <= 2)
-				{
-
-				}
-				#endregion
-
-				#region [Admins]
-				if (user.RoleId <= 1)
-				{
-					if (message.Contains("!ignore"))
-					{
-						if (message.Contains("add"))
-						{
-							var messages = message.Split(' ');
-							foreach (var msg in messages)
-							{
-								if (msg.Contains("@"))
-								{
-									var name = msg.Split('@')[1];
-									var foundUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.Find(name));
-									var foundUser = foundUsers.FirstOrDefault();
-									if (foundUser != null)
-									{
-										foundUser.Ignored = true;
-										var businessUser = Mapper.Map<BusinessDiscordUserModel>(foundUser);
-										Business.User.Update(businessUser);
-										await e.Channel.SendMessage(e.User.Mention + @" I will be ignoring " + name + " from now on.");
-										return;
-									}
-
-									await
-										e.Channel.SendMessage(e.User.Mention + @" I cannot find a user with the name: " + name + " in my memory.");
-									return;
-								}
-							}
-							await e.Channel.SendMessage(e.User.Mention + @" Please tag the user you would like to ignore like this *!ignore add @{user}.");
-							return;
-						}
-
-						if (message.Contains("remove") || message.Contains("remove"))
-						{
-							var messages = message.Split(' ');
-							foreach (var msg in messages)
-							{
-								if (msg.Contains("@"))
-								{
-									var name = msg.Split('@')[1];
-									var foundUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.Find(name));
-									var foundUser = foundUsers.FirstOrDefault();
-									if (foundUser != null)
-									{
-										foundUser.Ignored = false;
-										var businessUser = Mapper.Map<BusinessDiscordUserModel>(foundUser);
-										Business.User.Update(businessUser);
-										await e.Channel.SendMessage(e.User.Mention + @" I will also be listening to " + name + " from now on.");
-										return;
-									}
-
-									await
-										e.Channel.SendMessage(e.User.Mention + @" I cannot find a user with the name: " + name + " in my memory.");
-									return;
-								}
-							}
-							await e.Channel.SendMessage(e.User.Mention + @" Please tag the user you would like to ignore like this *!ignore add @{user}.");
-							return;
-						}
-					}
-
-					//if (message.Contains("!role"))
-					//{
-					//	var messages = message.Split(' ');
-					//	var userName = string.Empty;
-					//	var userRole = string.Empty;
-
-					//	foreach (var msg in messages.Where(msg => msg.Contains("@")))
-					//	{
-					//		userName = msg.Split('@')[1];
-					//	}
-
-					//	foreach (var msg in messages.Where(msg => msg.Contains("#")))
-					//	{
-					//		userRole = msg.Split('#')[1];
-					//	}
-
-					//	if (userRole != "admin" && userRole != "organizer" && userRole != "knownuser")
-					//	{
-					//		await e.Channel.SendMessage(e.User.Mention + @" Please use a proper role for example *Admin, Organizer or KnownUser*");
-					//		return;
-					//	}
-
-					//	var foundUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.Find(userName));
-					//	var foundUser = foundUsers.FirstOrDefault();
-					//	if (foundUser != null)
-					//	{
-					//		var businessUser = Mapper.Map<BusinessDiscordUserModel>(foundUser);
-					//		Business.User.UpdateRoleFromName(businessUser, userRole);
-					//		await e.Channel.SendMessage(e.User.Mention + @" I have updated the role of name: " + userName + " to role: " + userRole + ".");
-					//		return;
-					//	}
-
-					//	await e.Channel.SendMessage(e.User.Mention + @" Please tag the user you would like to edit like this *!role @{user} #{role}.");
-					//	return;
-					//}
-				}
 				#endregion
 			}
-
-
-
 		}
-		
+
+		public async void BirthdayNotification()
+		{
+			Console.WriteLine("Sending Birthday Notifications.");
+			var birthdayUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.GetUsersWithBirthdate(DateTime.Today));
+
+			if (birthdayUsers == null || !birthdayUsers.Any())
+			{
+				Console.WriteLine("There are no birthdays today.");
+				return;
+			}
+
+			foreach (var birthdayUser in birthdayUsers)
+			{
+				var subscribedUsers = Mapper.Map<List<DiscordUserModel>>(Business.UserSubscription.GetSubscribers(birthdayUser.Id));
+
+				foreach (var subscribedUser in subscribedUsers)
+				{
+					var discordUser = bot.Servers.SelectMany(s => s.Users.Where(u => u.Id == (ulong)subscribedUser.Id)).FirstOrDefault();
+
+					if (discordUser != null && birthdayUser.Birthdate != null)
+					{
+						await discordUser.SendMessage("Hey, It's " + birthdayUser.Name + " birthday today! They are now " + (DateTime.Today.Year - birthdayUser.Birthdate.Value.Date.Year) + ".");
+					}
+				}
+			}
+		}
+
+		public void GlobalBirthdayNotification()
+		{
+			Console.WriteLine("Sending Global Birthday Notifications.");
+			Thread.Sleep(3000);
+			var birthdayUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.GetUsersWithBirthdate(DateTime.Today));
+
+			if (birthdayUsers == null || !birthdayUsers.Any())
+			{
+				Console.WriteLine("There are no birthdays today.");
+				return;
+			}
+
+			foreach (var birthdayUser in birthdayUsers)
+			{
+				foreach (var server in bot.Servers)
+				{
+					foreach (var channel in server.TextChannels)
+					{
+						if (channel.Name.ToLower() == "birthdays" || channel.Name.ToLower() == "notifications")
+						{
+							if (birthdayUser.Birthdate != null)
+							{
+								channel.SendMessage(
+									"Hey, It's " + birthdayUser.Name + " birthday today! They are now "
+									+ (DateTime.Today.Year - birthdayUser.Birthdate.Value.Date.Year) + ".");
+							}
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Synchronize all the users from all the Discord Servers with my current database (Only add/update)
+		/// </summary>
+		public void SynchronizeUsers()
+		{
+			Console.WriteLine("Synchronizing Users.");
+			
+			var servers = bot.Servers;
+			foreach (var businessUser in from server in servers from user in server.Users select new BusinessDiscordUserModel { Id = (long)user.Id, Name = user.Name })
+			{
+				Business.User.UpdateOrInsert(businessUser);
+			}
+			Console.WriteLine("Done Synchronizing.");
+		}
+
+		public static void ImAlive()
+		{
+			Console.WriteLine("I'm reached");
+		}
+
+
+		private void Bot_MessageSent(object sender, MessageEventArgs e)
+		{
+			Console.WriteLine("[" + DateTime.UtcNow + "] [Event]: Message Send. [Action] "+ e.Message + " Send to channel: " + e.Channel.Name + " To Server: " + e.Server.Name);
+		}
 	}
 }
