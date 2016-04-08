@@ -1,31 +1,41 @@
-﻿@model List<WebApp.Models.UserSubscriptionModel>
+﻿@model WebApp.Models.DiscordUserModel
 @{
     ViewBag.Title = "Home Page";
+	var userSubscription = ViewBag.UserSubscriptions as List<WebApp.Models.UserSubscriptionModel>;
 }
 
-@using (Html.BeginForm("UserSubscriptions", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@if (Model.ForceAllBirthdayNotifications)
 {
+	<text>
+		<p>You have checked "Force All Birthday Notifications", because of this you will get notified when its someones birthday.</p></text>
+}
+else
+{
+	<p>You will only get notified when someone in you are "subscribed" to someone's birthday.</p>
+
+	using (Html.BeginForm("UserSubscriptions", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+	{
 	<div class="row">
 		<div class="table-responsive">
-			<table class="table table-striped table-hover">
+			<table class="table table-striped table-hover" id="subscriptionsTable">
 				<thead>
 					<tr>
 						<th>Name</th>
 					</tr>
 				</thead>
 				<tbody>
-					@if (Model.Any())
+					@if (userSubscription !=null && userSubscription.Any())
 					{
-						foreach (var subscribedUser in Model)
+						foreach (var subscribedUser in userSubscription)
 						{
 							@Html.Partial("~/Views/Account/_UserSubscription.cshtml", subscribedUser)
 						}
 					}
 					else
 					{
-						<tr>
-							<td>You are not subscribed to anyone.</td>
-						</tr>
+					<tr>
+						<td>You are not subscribed to anyone.</td>
+					</tr>
 					}
 				</tbody>
 				<tfoot>
@@ -39,17 +49,20 @@
 			</table>
 		</div>
 	</div>
+	}
 }
+
+
 
 @section scripts {
 	<script type="text/javascript">
 	$(document).ready(function() {
-		$("#table").on('click', '#add', function () {
+		$("#subscriptionsTable").on('click', '#add', function () {
 			$.ajax({
 				cache: false,
 				url: '@Url.Action("AddUserSubscriptions")'
 			}).done(function(html) {
-				$('#table > tbody').append(html);
+				$('#subscriptionsTable > tbody').append(html);
 			});
 		});
 

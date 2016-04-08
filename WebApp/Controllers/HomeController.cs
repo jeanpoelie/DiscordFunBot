@@ -3,10 +3,13 @@
 namespace WebApp.Controllers
 {
 	using System;
+	using System.Collections.Generic;
 
 	using AutoMapper;
 
 	using Business.Models;
+
+	using WebApp.Models;
 
 	public class HomeController : BaseController
 	{
@@ -16,18 +19,25 @@ namespace WebApp.Controllers
 		}
 
 		[HttpPost]
-		public void AddSuggestion(string suggestion)
+		public void AddSuggestion(string suggestionText)
 		{
 			try
 			{
 				var businessDiscordUser = Mapper.Map<BusinessDiscordUserModel>(DiscordUser);
-				Business.User.AddSuggestion(suggestion, businessDiscordUser);
+				var suggestion = new SuggestionModel { Suggestion = suggestionText, UserId = businessDiscordUser.Id };
+				Business.Suggestion.Add(Mapper.Map<BusinessSuggestionModel>(suggestion));
 			}
 			catch (Exception ex)
 			{
 				throw new ArgumentException(ex.Message);
 			}
 			
+		}
+
+		public ActionResult Suggestions()
+		{
+			var model = Mapper.Map<List<SuggestionModel>>(Business.Suggestion.GetAll());
+			return View(model);
 		}
     }
 }

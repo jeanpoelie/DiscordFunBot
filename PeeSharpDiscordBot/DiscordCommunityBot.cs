@@ -52,7 +52,8 @@
 			bot.Connect("discordcommunityrobot@gmail.com", "ditisgeheim");
 
 			// Testing functions
-			GlobalBirthdayNotification();
+			Thread.Sleep(3000);
+
 
 			// Scheduled Actions 
 			ScheduleAction(new Action(SynchronizeUsers), new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0));
@@ -252,7 +253,7 @@
 		{
 			Console.WriteLine("Sending Birthday Notifications.");
 			var birthdayUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.GetUsersWithBirthdate(DateTime.Today));
-
+			
 			if (birthdayUsers == null || !birthdayUsers.Any())
 			{
 				Console.WriteLine("There are no birthdays today.");
@@ -261,13 +262,12 @@
 
 			foreach (var birthdayUser in birthdayUsers)
 			{
-				var subscribedUsers = Mapper.Map<List<DiscordUserModel>>(Business.UserSubscription.GetSubscribers(birthdayUser.Id));
-
+				var subscribedUsers = Mapper.Map<List<DiscordUserModel>>(Business.UserSubscription.GetSubscribers(birthdayUser.Id)); 
 				foreach (var subscribedUser in subscribedUsers)
 				{
 					var discordUser = bot.Servers.SelectMany(s => s.Users.Where(u => u.Id == (ulong)subscribedUser.Id)).FirstOrDefault();
 
-					if (discordUser != null && birthdayUser.Birthdate != null)
+					if (discordUser != null && birthdayUser.Birthdate != null && discordUser.Id != bot.CurrentUser.Id)
 					{
 						await discordUser.SendMessage("Hey, It's " + birthdayUser.Name + " birthday today! They are now " + (DateTime.Today.Year - birthdayUser.Birthdate.Value.Date.Year) + ".");
 					}
@@ -278,7 +278,6 @@
 		public void GlobalBirthdayNotification()
 		{
 			Console.WriteLine("Sending Global Birthday Notifications.");
-			Thread.Sleep(3000);
 			var birthdayUsers = Mapper.Map<List<DiscordUserModel>>(Business.User.GetUsersWithBirthdate(DateTime.Today));
 
 			if (birthdayUsers == null || !birthdayUsers.Any())

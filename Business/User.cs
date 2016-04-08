@@ -19,16 +19,6 @@
 			DatabaseCommunication.AddUser(user);
 		}
 
-		public static void AddSuggestion(string suggestion, BusinessDiscordUserModel user)
-		{
-			if (user == null)
-			{
-				throw new NullReferenceException("The user is empty");
-			}
-
-			DatabaseCommunication.AddUserSuggestion(suggestion, user);
-		}
-
 		public static IList<BusinessDiscordUserModel> Find(string name)
 		{
 			if (string.IsNullOrEmpty(name))

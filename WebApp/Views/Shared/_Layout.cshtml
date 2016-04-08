@@ -33,13 +33,15 @@
 	            </ul>
 
 	            <ul class="nav navbar-nav pull-right">
-		            @if (roleId <= (int)Role.Admin)
-					{
+	@if (roleId <= (int)Role.Admin)
+	{
 					<li>
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"> Admin <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li>@Html.ActionLink("Users", "Index", "Users")</li>
-						</ul>
+							<li>@Html.ActionLink("Suggestions", "Suggestions", "Home")
+					</li>
+				</ul>
 					</li>
 					}
 					<li>

@@ -11,7 +11,7 @@
 	{ 
 		public static void Add(List<BusinessUserSubscriptionModel> subscriptions)
 		{
-			if (subscriptions.Any())
+			if (!subscriptions.Any())
 			{
 				throw new NullReferenceException("The subscription is empty");
 			}

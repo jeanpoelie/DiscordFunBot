@@ -28,14 +28,14 @@
 				new MySqlParameter("@Token", Guid.NewGuid()));
 		}
 
-		public static void AddUserSuggestion(string suggestion, BusinessDiscordUserModel user)
+		public static void AddUserSuggestion(BusinessSuggestionModel suggestion)
 		{
 			const string Query = @"INSERT INTO `Suggestions` (`UserId`, `Description`)  VALUES (@UserId, @Suggestion)";
 
 			Database.ExecuteQuery(
 				Query,
-				new MySqlParameter("@UserId", user.Id),
-				new MySqlParameter("@Suggestion", suggestion));
+				new MySqlParameter("@UserId", suggestion.UserId),
+				new MySqlParameter("@Suggestion", suggestion.Suggestion));
 		}
 
 		public static void AddUserSubscription(BusinessUserSubscriptionModel subscription)
@@ -50,7 +50,7 @@
 
 		public static DataTable FindUser(string name)
 		{
-			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Name` = @Name";
+			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Name` = @Name";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Name", name)).Tables[0];
 
@@ -59,7 +59,7 @@
 
 		public static DataTable AuthorizeUser(string token, string uid)
 		{
-			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Token` = @Token AND `Users`.`Id` = @Id";
+			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Token` = @Token AND `Users`.`Id` = @Id";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Token", token), new MySqlParameter("@Id", uid)).Tables[0];
 
@@ -75,7 +75,7 @@
 
 		public static DataTable GetUser(long id)
 		{
-			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Users`.`Id` = @Id";
+			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE `Users`.`Id` = @Id";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Id", id)).Tables[0];
 
@@ -84,7 +84,16 @@
 
         public static DataTable GetAllUsers()
 		{
-			const string Query = @"SELECT `Users`.`Id`, Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`";
+			const string Query = @"SELECT `Users`.`Id`, Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`";
+
+			var dt = Database.ExecuteQuery(Query).Tables[0];
+
+			return dt;
+		}
+
+		public static DataTable GetAllSuggestions()
+		{
+			const string Query = @"SELECT UserId, `Users`.`Name` AS UserName, Description AS Suggestion FROM `Suggestions` INNER JOIN `Users` ON `Users`.`Id` = `Suggestions`.`UserId`";
 
 			var dt = Database.ExecuteQuery(Query).Tables[0];
 
@@ -93,7 +102,7 @@
 
 		public static DataTable GetSubscribedUsersList(long id, string userName)
 		{
-			const string Query = @"SELECT UserId = @Id, UserName = @UserName, SubscriptionUserId = `Users`.`Id`, SubscriptionUserName = `Users`.Name FROM `Users` INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`UserId` = @Id WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId`";
+			const string Query = @"SELECT @Id as UserId, @UserName as UserName, `Users`.`Id` as SubscriptionUserId, `Users`.`Name` as SubscriptionUserName FROM `Users` INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`UserId` = @Id WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId`";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Id", id), new MySqlParameter("@UserName", userName)).Tables[0];
 
@@ -102,7 +111,7 @@
 
 		public static DataTable GetSubscribedUsers(long id)
 		{
-			const string Query = @"SELECT `Users`.`Id`, `Users`.Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`UserId` = @Id WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId`";
+			const string Query = @"SELECT `Users`.`Id`, `Users`.Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`UserId` = @Id WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId`";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Id", id)).Tables[0];
 
@@ -111,7 +120,7 @@
 
 		public static DataTable GetSubscribers(long id)
 		{
-			const string Query = @"SELECT `Users`.`Id`, `Users`.Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`Subscription_UserId` = @Id WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId`";
+			const string Query = @"SELECT DISTINCT `Users`.`Id`, `Users`.Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id`INNER JOIN `UserSubscriptions` ON `UserSubscriptions`.`Subscription_UserId` = @Id OR `Users`.`ForceAllBirthdayNotifications` = 1 WHERE `Users`.`Id` = `UserSubscriptions`.`Subscription_UserId` OR `Users`.`ForceAllBirthdayNotifications` = 1";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@Id", id)).Tables[0];
 
@@ -147,7 +156,7 @@
 
 		public static DataTable GetUsersWithBirthdate(DateTime birthDate)
 		{
-			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE MONTH(`Users`.`BirthDate`) = MONTH(DATE_ADD(@BirthDate,INTERVAL 0 MONTH)) AND DAY(`Users`.`BirthDate`) = DAY(DATE_ADD(@BirthDate,INTERVAL 0 DAY))";
+			const string Query = @"SELECT `Users`.Id, Name, AddDate, UpdateDate, BirthDate, Ignored, ForceAllBirthdayNotifications, Token, `Users`.`Role` as RoleId,`Roles`.`Description` as RoleDescription FROM `Users` INNER JOIN `Roles` ON `Users`.`Role`= `Roles`.`Id` WHERE MONTH(`Users`.`BirthDate`) = MONTH(DATE_ADD(@BirthDate,INTERVAL 0 MONTH)) AND DAY(`Users`.`BirthDate`) = DAY(DATE_ADD(@BirthDate,INTERVAL 0 DAY))";
 
 			var dt = Database.ExecuteQuery(Query, new MySqlParameter("@BirthDate", birthDate)).Tables[0];
 
@@ -156,7 +165,7 @@
 
 		public static void UpdateUser(BusinessDiscordUserModel user)
 		{
-			const string Query = @"UPDATE `Users` SET `Name`=@Name, `UpdateDate`=@UpdateDate, `BirthDate`=@BirthDate, `Ignored`=@Ignored WHERE `Id`=@Id";
+			const string Query = @"UPDATE `Users` SET `Name`=@Name, `UpdateDate`=@UpdateDate, `BirthDate`=@BirthDate, `Ignored`=@Ignored, `ForceAllBirthdayNotifications`=@ForceAllBirthdayNotifications WHERE `Id`=@Id";
 
 			Database.ExecuteQuery(
 					Query,
@@ -164,7 +173,8 @@
 					new MySqlParameter("@Name", user.Name),
 					new MySqlParameter("@UpdateDate", DateTime.UtcNow),
 					new MySqlParameter("@BirthDate", user.Birthdate),
-					new MySqlParameter("@Ignored", user.Ignored));
+					new MySqlParameter("@Ignored", user.Ignored),
+					new MySqlParameter("@ForceAllBirthdayNotifications", user.ForceAllBirthdayNotifications));
 		}
 
 		public static void UpdateRole(BusinessDiscordUserModel user, int role)

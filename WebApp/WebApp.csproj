@@ -145,12 +145,14 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Extensions\HtmlPrefixScopeExtensions.cs" />
     <Compile Include="Extensions\DataRowExtensionMethods.cs" />
     <Compile Include="Extensions\DataTableExtension.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Extensions\HiddenForExtensions.cs" />
+    <Compile Include="Models\SuggestionModel.cs" />
     <Compile Include="Models\UserSubscriptionModel.cs" />
     <Compile Include="Models\DiscordUserModel.cs" />
     <Compile Include="Models\RoleModel.cs" />
@@ -516,6 +518,7 @@
     <Content Include="Views\Shared\_SuggestionsModal.cshtml" />
     <Content Include="Views\Account\UserSubscriptions.cshtml" />
     <Content Include="Views\Account\_UserSubscription.cshtml" />
+    <Content Include="Views\Home\Suggestions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

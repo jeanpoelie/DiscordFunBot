@@ -50,6 +50,8 @@
     <Compile Include="Extensions\DataTableExtension.cs" />
     <Compile Include="Models\BusinessUserSubscriptionModel.cs" />
     <Compile Include="Models\BusinessRoleModel.cs" />
+    <Compile Include="Models\BusinessSuggestionModel.cs" />
+    <Compile Include="Suggestion.cs" />
     <Compile Include="UserSubscription.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="User.cs" />

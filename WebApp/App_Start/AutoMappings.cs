@@ -22,7 +22,9 @@
 						cfg.CreateMap<BusinessDiscordUserModel, DiscordUserModel>();
 						cfg.CreateMap<UserSubscriptionModel, BusinessUserSubscriptionModel>();
 						cfg.CreateMap<BusinessUserSubscriptionModel, UserSubscriptionModel>();
-					});
+						cfg.CreateMap<SuggestionModel, BusinessSuggestionModel>();
+						cfg.CreateMap<BusinessSuggestionModel, SuggestionModel>();
+					});;
 		}
 	}
 }

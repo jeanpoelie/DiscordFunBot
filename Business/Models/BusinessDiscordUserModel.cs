@@ -16,6 +16,8 @@
 
 		public bool Ignored { get; set; }
 
+		public bool ForceAllBirthdayNotifications { get; set; }
+
 		public string Token { get; set; }
 
 		public int RoleId { get; set; }

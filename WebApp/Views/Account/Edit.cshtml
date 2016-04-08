@@ -28,7 +28,7 @@
 					<div class="form-group">
 						@Html.LabelFor(m => m.Birthdate, new { @class = "col-md-4" })
 						<div class="input-group date col-md-8" id="@Html.IdFor(m => m.Birthdate)">
-							<input type="text" class="form-control" name="Birthdate" id="Birthdate" />
+							<input type="text" class="form-control" name="Birthdate" id="Birthdate" value="@Model.Birthdate" />
 							<span class="input-group-addon">
 								<span class="glyphicon glyphicon-calendar"></span>
 							</span>
@@ -56,6 +56,10 @@
 					<div class="form-group">
 						@Html.LabelFor(m => m.UpdateDate, new { @class = "col-md-4" }) 
 						@Html.TextBoxFor(m => m.UpdateDate, new { @readonly = "readonly", @class = "form-control col-md-8" })
+					</div>
+					<div class="form-group">
+						@Html.LabelFor(m => m.ForceAllBirthdayNotifications, new { @class = "col-md-4" })
+						@Html.CheckBoxFor(m => m.ForceAllBirthdayNotifications, new { @class = "col-md-8" })
 					</div>
 				</div>
 			</div>

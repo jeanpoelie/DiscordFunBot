@@ -1,0 +1,37 @@
+﻿@using WebApp.Models
+@model List<SuggestionModel>
+@{
+	ViewBag.Title = "Users Suggestions";
+}
+
+<div class="row">
+	<div class="table-responsive">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Suggestion</th>
+				</tr>
+			</thead>
+			<tbody>
+			@if (Model.Any())
+			{
+				foreach (var user in Model)
+				{
+				<tr>
+					<td>@user.UserName</td>
+					<td>@user.Suggestion</td>
+					@*<td><a href="@Url.Action("Edit", "Users")/@user.Id"><span class="glyphicon glyphicon-pencil"></span></a></td>*@
+				</tr>
+				}
+			}
+			else
+			{
+				<tr>
+					<td>There are no suggestions.</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+</div>
